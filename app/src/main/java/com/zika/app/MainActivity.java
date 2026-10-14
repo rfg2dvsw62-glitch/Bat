@@ -36,7 +36,9 @@ public class MainActivity extends Activity {
                 pendingType = type;
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                if ("sticker".equals(type) || "image".equals(type)) {
+                if ("sticker".equals(type) || "image".equals(type)
+                    || "setBg".equals(type) || "setMyAvatar".equals(type)
+                    || "setTheirAvatar".equals(type) || "setTheirBg".equals(type)) {
                     intent.setType("image/*");
                 } else {
                     intent.setType("*/*");
@@ -58,11 +60,20 @@ public class MainActivity extends Activity {
                 byte[] bytes = readAllBytes(is);
                 is.close();
 
-                if ("sticker".equals(pendingType) || "image".equals(pendingType)) {
+                if ("sticker".equals(pendingType) || "image".equals(pendingType)
+                    || "setBg".equals(pendingType) || "setMyAvatar".equals(pendingType)
+                    || "setTheirAvatar".equals(pendingType) || "setTheirBg".equals(pendingType)) {
                     String mime = getContentResolver().getType(uri);
                     if (mime == null) mime = "image/png";
                     String base64 = "data:" + mime + ";base64," + Base64.encodeToString(bytes, Base64.NO_WRAP);
-                    String func = "sticker".equals(pendingType) ? "androidReceiveSticker" : "androidReceiveImage";
+                    String func;
+                    if ("sticker".equals(pendingType)) func = "androidReceiveSticker";
+                    else if ("image".equals(pendingType)) func = "androidReceiveImage";
+                    else if ("setBg".equals(pendingType)) func = "androidReceiveSetBg";
+                    else if ("setMyAvatar".equals(pendingType)) func = "androidReceiveSetMyAvatar";
+                    else if ("setTheirAvatar".equals(pendingType)) func = "androidReceiveSetTheirAvatar";
+                    else if ("setTheirBg".equals(pendingType)) func = "androidReceiveSetTheirBg";
+                    else func = "androidReceiveImage";
                     final String js = func + "('" + base64 + "');";
                     webView.post(new Runnable() {
                         @Override
